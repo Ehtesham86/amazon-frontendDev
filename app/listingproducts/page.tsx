@@ -86,7 +86,7 @@ const Modal = () => {
     }
   };
 
-  const handleSaveClickGetById = async (asin) => {
+  const handleSaveClickGetById = async (asin:React.ChangeEvent<HTMLInputElement>) => {
     console.log(asin,'_________asin')
     await handleSaveClickgetByIds(asin); // Call the handleSaveClick function
     setIsOpen(true); // Set the modal state to open
