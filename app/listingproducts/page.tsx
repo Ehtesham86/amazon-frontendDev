@@ -22,7 +22,7 @@ const Modal = () => {
   const fetchProducts = async () => {
     setloading(true)
     try {
-      const response = await fetch('http://localhost:8000/api/products');
+      const response = await fetch('https://amazon-api-five.vercel.app/api/products');
       const data = await response.json();
       setProducts(data.data); // Update the state with the fetched products
     setloading(false)
@@ -48,7 +48,7 @@ const Modal = () => {
  
   const handleSaveClickgetByIds = async (asin: string) => {
     try {
-      const response = await fetch('http://localhost:8000/api/get-product', {
+      const response = await fetch('https://amazon-api-five.vercel.app/api/get-product', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ const Modal = () => {
 
   const handleSaveClick = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/scrape-product', {
+      const response = await fetch('https://amazon-api-five.vercel.app/api/scrape-product', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
