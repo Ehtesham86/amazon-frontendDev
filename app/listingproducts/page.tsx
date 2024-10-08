@@ -63,7 +63,7 @@ const Modal = () => {
   //   }
   // };
 
-  const handleSaveClickgetByIds = async (asin) => {
+  const handleSaveClickgetByIds = async (asin: React.ChangeEvent<HTMLInputElement>) => {
     try {
       const response = await fetch('http://localhost:8000/api/get-product', {
         method: 'POST',
