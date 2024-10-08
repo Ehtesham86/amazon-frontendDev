@@ -20,25 +20,29 @@ const Modal = () => {
   const [refresh, setRefresh] = useState(false);
 
   const fetchProducts = async () => {
-    setloading(true)
+    setloading(true);
     try {
-      const response = await fetch('https://amazon-api-five.vercel.app/api/products');
+      const response = await fetch('https://amazon-api-five.vercel.app/api/products', {
+        mode: 'cors', // Add this to handle cross-origin requests
+      });
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
       const data = await response.json();
       setProducts(data.data); // Update the state with the fetched products
-    setloading(false)
-
     } catch (error) {
-    setloading(false)
-
       console.error('Error fetching products:', error);
+    } finally {
+      setloading(false);
     }
   };
-
+  
   useEffect(() => {
     fetchProducts(); // Call the fetch function when the component mounts
   }, [refresh]);
-
-
+  
   const [isOpen, setIsOpen] = useState (false);
   const [ErrorMsg, setErrorMsg] = useState ('');
   const [getByIdData, setGetByIdData] = useState ('');
