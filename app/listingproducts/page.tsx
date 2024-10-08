@@ -23,7 +23,7 @@ const Modal = () => {
     setloading(true);
     try {
       const response = await fetch('https://amazon-api-five.vercel.app/api/products', {
-        mode: 'cors', // Add this to handle cross-origin requests
+        mode: 'no-cors', // Add this to handle cross-origin requests
       });
   
       if (!response.ok) {
