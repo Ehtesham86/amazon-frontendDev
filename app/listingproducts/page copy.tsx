@@ -15,7 +15,7 @@ const ListingProducts = async () => {
     setIsOpen(false);
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
 
