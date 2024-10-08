@@ -1,11 +1,12 @@
-// next.config.js
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-    images: {
-      domains: ['m.media-amazon.com'], // Add your image domains here
-    },
-  };
-  
-  module.exports = nextConfig;
-
-  
+module.exports = {
+  reactStrictMode: true,
+  async rewrites() {
+    return [
+      {
+        source: '/api/products', // Your frontend route for API calls
+        destination: 'https://amazon-api-five.vercel.app/api/products', // The actual API URL
+      },
+    ];
+  },
+};

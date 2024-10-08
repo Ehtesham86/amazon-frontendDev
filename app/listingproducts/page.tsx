@@ -19,12 +19,12 @@ const Modal = () => {
   const [loading, setloading] = useState(false);
   const [refresh, setRefresh] = useState(false);
 
+
+  
   const fetchProducts = async () => {
     setloading(true);
     try {
-      const response = await fetch('https://amazon-api-five.vercel.app/api/products', {
-        mode: 'no-cors', // Add this to handle cross-origin requests
-      });
+      const response = await fetch('https://amazon-api-five.vercel.app/api/products');
   
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
