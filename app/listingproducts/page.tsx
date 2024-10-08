@@ -129,7 +129,7 @@ const Modal = () => {
 
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setasin(e.target.value);
   };
     // Fetch products from API
