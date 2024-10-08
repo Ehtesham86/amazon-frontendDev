@@ -4,9 +4,18 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { FaPlus,FaEyeSlash } from 'react-icons/fa';
 import { FaEye } from "react-icons/fa6";
-
+interface Product {
+  id: number; // or string
+  asin: string;
+  title: string;
+  price: number; // or string
+  profit: number; // or string
+  age: string; // adjust as necessary
+  order: number; // or string
+  status: string;
+}
 const Modal = () => {
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setloading] = useState(false);
   const [refresh, setRefresh] = useState(false);
 
@@ -36,34 +45,8 @@ const Modal = () => {
 
   const [asin, setasin] = useState('');
 
-  // const handleSaveClickGetById = async () => {
-  //   try {
-  //     const response = await fetch('localhost:8000/api/get-product', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({ asin }),
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error('Failed to scrape product');
-  //       setErrorMsg('Failed to add product')
-  //     }
-
-  //     const data = await response.json();
-  //     setIsOpen(false)
-  //     setErrorMsg('')
-
-  //     setRefresh(!refresh)
-  //     console.log('Scraped product data:', data);
-  //   } catch (error) {
-  
-  //     console.error('Error:', error);
-  //   }
-  // };
-
-  const handleSaveClickgetByIds = async (asin: React.ChangeEvent<HTMLInputElement>) => {
+ 
+  const handleSaveClickgetByIds = async (asin: string) => {
     try {
       const response = await fetch('http://localhost:8000/api/get-product', {
         method: 'POST',
@@ -86,12 +69,12 @@ const Modal = () => {
     }
   };
 
-  const handleSaveClickGetById = async (asin:React.ChangeEvent<HTMLInputElement>) => {
+  const handleSaveClickGetById = async (asin:string) => {
     console.log(asin,'_________asin')
-    await handleSaveClickgetByIds(asin); // Call the handleSaveClick function
+    await handleSaveClickgetByIds(asin);  
     setIsOpen(true); // Set the modal state to open
   };
-
+ 
 
   const handleSaveClick = async () => {
     try {
