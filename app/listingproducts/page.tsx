@@ -7,6 +7,7 @@ import { CiCircleMinus } from "react-icons/ci";
 import { FaEye } from "react-icons/fa6";
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import EbayListing from '../ebaylisting/page';
 
 interface Product {
   id: number; // or string
@@ -27,6 +28,8 @@ const listingproducts = () => {
   console.log(products,'__________products')
   
   const [isOpen, setIsOpen] = useState (false);
+  const [isOpenOwn, setIsOpenOwn] = useState (false);
+
   const [ErrorMsg, setErrorMsg] = useState ('');
   const [getByIdData, setGetByIdData] = useState ('');
   const [asins, setAsins] = useState<string[]>(['']); // Initialize with one empty asin field
@@ -257,12 +260,20 @@ const listingproducts = () => {
     setasin('')
     setIsOpen(true);
   };
+  const handleOpenModalOwn = () => {
+    setasin('')
+    setIsOpenOwn(true);
+  };
   const handleCloseModal = () => {
     setIsOpen(false);
     setErrorMsg('')
 
   };
+  const handleCloseModalOwn = () => {
+    setIsOpenOwn(false);
+    setErrorMsg('')
 
+  };
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setasin(e.target.value);
   };
@@ -277,20 +288,84 @@ const listingproducts = () => {
   <div className="col-span-2"></div>
   <div className="col-span-2"></div>
   <div className="col-span-2"></div>
-  <div className="col-span-2  "></div>
-  <div className="col-span-1">
+ 
+  <div className="col-span-1  ">
   <button
         onClick={handleOpenModal}
-        className="flex items-center text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 shadow-lg shadow-green-500/50 dark:shadow-lg dark:shadow-green-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2"
+        className="flex items-center text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 shadow-lg shadow-green-500/50 dark:shadow-lg dark:shadow-green-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
 >
   <FaPlus className="mr-2" />
-  Add 
+  Amazon
+</button>
+  </div>
+  <div className="col-span-1">
+  <button
+        onClick={handleOpenModalOwn}
+        className="flex items-center text-white bg-gradient-to-r from-green-400 via-green-500 to-green-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-green-300 dark:focus:ring-green-800 shadow-lg shadow-green-500/50 dark:shadow-lg dark:shadow-green-800/80 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+>
+  <FaPlus className="mr-2" />
+  Your Own
 </button>
 <div>
- 
-    </div>
-  </div>
-  
+
+
+{isOpenOwn && (
+         <div className="fixed inset-0 z-50 flex items-center justify-center" aria-hidden="true">
+         <div className="relative max-h-[400] w-full  max-w-[80%] top-[-20%]" aria-modal="true" role="dialog">
+           <div className="relative rounded-lg bg-white shadow dark:bg-gray-700">
+             <div className="flex items-start justify-between rounded-t border-b p-5 dark:border-gray-600">
+               <h3 className="text-xl font-semibold text-gray-900 dark:text-white lg:text-2xl">
+                 Add ASIN here
+               </h3>
+               <button
+                 type="button"
+                 className="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+                 onClick={handleCloseModalOwn}
+               >
+                 <svg
+                   className="h-3 w-3"
+                   aria-hidden="true"
+                   xmlns="http://www.w3.org/2000/svg"
+                   fill="none"
+                   viewBox="0 0 14 14"
+                 >
+                   <path
+                     stroke="currentColor"
+                     strokeLinecap="round"
+                     strokeLinejoin="round"
+                     strokeWidth="2"
+                     d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                   />
+                 </svg>
+               </button>
+             </div>
+            <EbayListing/>
+             <div className="flex items-center space-x-2 rtl:space-x-reverse rounded-b border-t border-gray-200 p-6 dark:border-gray-600">
+               <button
+                 onClick={handleSaveClick}
+                 type="button"
+                 className="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+               >
+                 Save
+               </button>
+               <button
+                 onClick={() => {
+                  setIsOpenOwn(false);
+                   setErrorMsg('');
+                 }}
+                 type="button"
+                 className="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:z-10 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:border-gray-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+               >
+                 Cancel
+               </button>
+             </div>
+           </div>
+         </div>
+       </div>
+      )}
+
+
+    
 </div>
     
       {isOpen && (
@@ -374,6 +449,18 @@ const listingproducts = () => {
          </div>
        </div>
       )}
+    </div>
+
+
+
+
+
+
+
+    
+</div>
+    
+   
     </div>
 
  
