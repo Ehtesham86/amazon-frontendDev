@@ -3,7 +3,7 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { FaPlus,FaEyeSlash } from 'react-icons/fa';
-
+import { CiCircleMinus } from "react-icons/ci";
 import { FaEye } from "react-icons/fa6";
 interface Product {
   id: number; // or string
@@ -30,6 +30,12 @@ const listingproducts = () => {
   const [asin, setasin] = useState('');
   const handleAddAsinField = () => {
     setAsins([...asins, '']); // Add a new empty string to the asins array
+  };
+  const handleRemoveAsinField = (index: number) => {
+    if (asins.length > 1) { // Only remove if there's more than one input field
+      const newAsins = asins.filter((_, i) => i !== index);
+      setAsins(newAsins);
+    }
   };
   const handleInputChangeNew = (index: number, value: string): void => {
     const newAsins = [...asins];
@@ -292,24 +298,31 @@ const listingproducts = () => {
                </button>
              </div>
              <div className="space-y-6 p-6">
-               {asins.map((asin, index) => (
-                 <div key={index} className="flex items-center mb-2">
-                   <input
-                     type="text"
-                     value={asin}
-                     onChange={(e) => handleInputChangeNew(index, e.target.value)}
-                     className="w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                     placeholder={`Enter ASIN ${index + 1}`}
-                   />
-                   {index === asins.length - 1 && ( // Only show the plus icon for the last input field
-                     <FaPlus
-                       className="ml-2 cursor-pointer"
-                       onClick={handleAddAsinField}
-                       style={{ color: 'red' }}
-                     />
-                   )}
-                 </div>
-               ))}
+             {asins.map((asin, index) => (
+        <div key={index} className="flex items-center mb-2">
+          <input
+            type="text"
+            value={asin}
+            onChange={(e) => handleInputChangeNew(index, e.target.value)}
+            className="w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            placeholder={`Enter ASIN ${index + 1}`}
+          />
+          {index === asins.length - 1 && ( // Only show the minus and plus icons for the last input field
+            <>
+              <CiCircleMinus
+                className="ml-2 cursor-pointer"
+                onClick={() => handleRemoveAsinField(index)} // Remove the last input field
+                style={{ color: 'red' }}
+              />
+              <FaPlus
+                className="ml-2 cursor-pointer"
+                onClick={handleAddAsinField} // Add a new input field
+                style={{ color: 'red' }}
+              />
+            </>
+          )}
+        </div>
+      ))}
                <p style={{ color: 'red', fontSize: 'small' }}>{ErrorMsg}</p>
              </div>
              <div className="flex items-center space-x-2 rtl:space-x-reverse rounded-b border-t border-gray-200 p-6 dark:border-gray-600">
