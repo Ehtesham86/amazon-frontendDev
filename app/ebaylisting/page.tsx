@@ -17,7 +17,7 @@
     mpn: string;
     quantity: number;
     aspects: Aspect[];
-    imageUrls: string[]; // Array of strings for URLs
+    imageUrls:  (string | undefined)[]; // Array of strings for URLs
     condition: string;
   }
   
