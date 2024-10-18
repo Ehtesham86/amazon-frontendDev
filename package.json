@@ -22,24 +22,29 @@
     "supabase:pull": "npx supabase db pull"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-toast": "^1.1.5",
     "@stripe/stripe-js": "2.4.0",
     "@supabase/ssr": "^0.1.0",
     "@supabase/supabase-js": "^2.43.4",
+    "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "classnames": "^2.5.1",
     "clsx": "^2.1.1",
+    "ebay-api": "^9.1.1",
     "lucide-react": "0.330.0",
     "next": "14.2.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hook-form": "^7.53.0",
     "react-icons": "^5.3.0",
     "react-merge-refs": "^2.1.1",
     "stripe": "^14.25.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss": "^3.4.4",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@types/node": "^20.14.2",

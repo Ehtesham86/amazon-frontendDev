@@ -1,12 +1,21 @@
+// next.config.js
+
 /** @type {import('next').NextConfig} */
-module.exports = {
-  reactStrictMode: true,
-  async rewrites() {
+const nextConfig = {
+  async headers() {
     return [
       {
-        source: '/api/products', // Your frontend route for API calls
-        destination: 'https://amazon-api-five.vercel.app/api/products', // The actual API URL
-      },
+        // matching all API routes
+        source: "/api/:path*",
+        headers: [
+          { key: "Access-Control-Allow-Credentials", value: "true" },
+          { key: "Access-Control-Allow-Origin", value: "http://localhost:3000" }, // Change this as needed
+          { key: "Access-Control-Allow-Methods", value: "GET,DELETE,PATCH,POST,PUT" },
+          { key: "Access-Control-Allow-Headers", value: "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version" },
+        ]
+      }
     ];
-  },
-};
+  }
+}
+
+module.exports = nextConfig;

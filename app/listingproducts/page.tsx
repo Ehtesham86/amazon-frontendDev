@@ -1,8 +1,9 @@
-// components/Modal.js
-'use client'
-import Image from 'next/image';
-import { useEffect, useState } from 'react';
+'use client'; // Marking this component as a Client Component
+
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import { FaPlus,FaEyeSlash } from 'react-icons/fa';
+
 import { FaEye } from "react-icons/fa6";
 interface Product {
   id: number; // or string
@@ -14,42 +15,113 @@ interface Product {
   order: number; // or string
   status: string;
 }
-const Modal = () => {
+const listingproducts = () => {
+
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setloading] = useState(false);
   const [refresh, setRefresh] = useState(false);
-
-
-  
-  const fetchProducts = async () => {
-    setloading(true);
-    try {
-      const response = await fetch('https://amazon-api-five.vercel.app/api/products');
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-  
-      const data = await response.json();
-      setProducts(data.data); // Update the state with the fetched products
-    } catch (error) {
-      console.error('Error fetching products:', error);
-    } finally {
-      setloading(false);
-    }
-  };
-  
-  useEffect(() => {
-    fetchProducts(); // Call the fetch function when the component mounts
-  }, [refresh]);
+  console.log(products,'__________products')
   
   const [isOpen, setIsOpen] = useState (false);
   const [ErrorMsg, setErrorMsg] = useState ('');
   const [getByIdData, setGetByIdData] = useState ('');
+  const [asins, setAsins] = useState<string[]>(['']); // Initialize with one empty asin field
 
   const [asin, setasin] = useState('');
+  const handleAddAsinField = () => {
+    setAsins([...asins, '']); // Add a new empty string to the asins array
+  };
+  const handleInputChangeNew = (index: number, value: string): void => {
+    const newAsins = [...asins];
+    newAsins[index] = value;
+    setAsins(newAsins);
+  };
 
- 
+  const prepareDataForEbay = (product:any) => {
+    return {
+      title: product.name,
+      description: product.description,
+      price: {
+        currency: 'USD',
+        value: product.price,
+      },
+      // Add other necessary fields as required by eBay API
+    };
+  };
+  const listProductOnEbay = async (product:any) => {
+
+    const preparedData = prepareDataForEbay(product);
+  
+    try {
+      const response = await axios.post(
+        'https://api.sandbox.ebay.com/sell/inventory/v1/inventory_item', // Replace with the correct eBay endpoint
+        preparedData,
+        {
+          headers: {
+            Authorization: `Bearer ${your_access_token}`, // You'll need to obtain a valid access token
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      console.log('Product listed on eBay:', response.data);
+    } catch (error) {
+      console.error('Error listing product on eBay:', error);
+    }
+  };
+    
+  // const fetchProducts = async () => {
+  //   setloading(true);
+  //   try {
+  //     // const response = await fetch('https://amazon-api-five.vercel.app/api/products');
+  //     const response = await fetch('http://localhost:8000/api/products', {
+  //       mode: 'no-cors'
+  //     });
+      
+  //     if (!response.ok) {
+  //       throw new Error(`HTTP error! status: ${response.status}`);
+  //     }
+  
+  //     const data = await response.json();
+  //     setProducts(data.data); // Update the state with the fetched products
+  //     console.log(data.data)
+  //   } catch (error) {
+  //     console.error('Error fetching products:', error);
+  //   } finally {
+  //     setloading(false);
+  //   }
+  // };
+  
+  // useEffect(() => {
+  //   fetchProducts(); // Call the fetch function when the component mounts
+  // }, [refresh]);
+  
+  useEffect(() => {
+    setloading(true);
+
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('http://localhost:8000/api/products', {
+          method: 'GET',
+          credentials: 'include', // Include credentials if needed
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setProducts(data.data); // Update the state with the fetched products
+        console.log(data.data)
+        console.log(data); // Log the data to the console
+      setloading(false);
+
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      setloading(false);
+
+      }
+    };
+
+    fetchProducts();
+  }, []);
   const handleSaveClickgetByIds = async (asin: string) => {
     try {
       const response = await fetch('https://amazon-api-five.vercel.app/api/get-product', {
@@ -72,44 +144,87 @@ const Modal = () => {
       console.error('Error:', error);
     }
   };
-
   const handleSaveClickGetById = async (asin:string) => {
     console.log(asin,'_________asin')
     await handleSaveClickgetByIds(asin);  
     setIsOpen(true); // Set the modal state to open
   };
- 
-
+  
+  const getAccessToken = async () => {
+    try {
+      const response = await axios.post('https://api.sandbox.ebay.com/identity/v1/oauth2/token', null, {
+        auth: {
+          username: 'Ehtesham-Ehtesham-SBX-36deb8e82-a5ef8b19', // App ID
+          password: 'SBX-6deb8e824f2b-9799-4a75-a27f-cf64', // Cert ID
+        },
+        params: {
+          grant_type: 'client_credentials',
+          scope: 'https://api.ebay.com/oauth/api_scope',
+        },
+      });
+      return response.data.access_token;
+      console.log(response.data.access_token,'response.data.access_token____')
+    } catch (error) {
+      console.error('Error obtaining access token:', error);
+    }
+  };
   const handleSaveClick = async () => {
     try {
-      const response = await fetch('https://amazon-api-five.vercel.app/api/scrape-product', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ asin }),
-      });
+      for (let asin of asins) {
+        if (asin.trim() === '') continue; // Skip empty asin fields
 
-      if (!response.ok) {
-        throw new Error('Failed to scrape product');
-        setErrorMsg('Failed to add product')
+        const response = await fetch('http://localhost:8000/api/scrape-products', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ asin }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to scrape product with ASIN: ${asin}`);
+        }
+
+        const data = await response.json();
+        console.log('Scraped product data:', data);
       }
 
-      const data = await response.json();
-      setIsOpen(false)
-      setRefresh(!refresh)
-      setErrorMsg('')
-      console.log('Scraped product data:', data);
+      setRefresh(!refresh);
+      setErrorMsg('');
     } catch (error) {
-  
+      setErrorMsg(error.message);
       console.error('Error:', error);
     }
   };
+  // const handleSaveClick = async () => {
+  //   try {
+  //     const response = await fetch('http://localhost:8000/api/scrape-products', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ asin }),
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error('Failed to scrape product');
+  //       setErrorMsg('Failed to add product')
+  //     }
+
+  //     const data = await response.json();
+  //     setIsOpen(false)
+  //     setRefresh(!refresh)
+  //     setErrorMsg('')
+  //     console.log('Scraped product data:', data);
+  //   } catch (error) {
+  
+  //     console.error('Error:', error);
+  //   }
+  // };
    const handleOpenModal = () => {
     setasin('')
     setIsOpen(true);
   };
-
   const handleCloseModal = () => {
     setIsOpen(false);
     setErrorMsg('')
@@ -121,7 +236,6 @@ const Modal = () => {
   };
     // Fetch products from API
   
-
   return (
     <>
     <div>
@@ -148,82 +262,78 @@ const Modal = () => {
 </div>
     
       {isOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center"
-          aria-hidden="true"
-        >
-          <div
-            className="relative max-h-full w-full max-w-2xl"
-            aria-modal="true"
-            role="dialog"
-          >
-            <div
-              className="relative rounded-lg bg-white shadow dark:bg-gray-700"
-            >
-              <div
-                className="flex items-start justify-between rounded-t border-b p-5 dark:border-gray-600"
-              >
-                <h3
-                  className="text-xl font-semibold text-gray-900 dark:text-white lg:text-2xl"
-                >
-Add ASIN here                </h3>
-                <button
-                  type="button"
-                  className="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
-                  onClick={handleCloseModal}
-                >
-                  <svg
-                    className="h-3 w-3"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 14 14"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                    />
-                  </svg>
-                 </button>
-              </div>
-              <div className="space-y-6 p-6">
-                <input
-                  type="text"
-                  value={asin}
-                  onChange={handleInputChange}
-                  className="block w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
-                  placeholder="Enter something"
-                />
-                <p style={{color:'red',fontSize:'small'}}>{ErrorMsg}</p>
-              </div>
-              <div
-                className="flex items-center space-x-2 rtl:space-x-reverse rounded-b border-t border-gray-200 p-6 dark:border-gray-600"
-              >
-                  <button
-                        onClick={handleSaveClick}
-
-                    type="button"
-                    className="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                  >
-                    Save
-                  </button>
-                <button
-                onClick={()=>{setIsOpen(false)
-      setErrorMsg('')}
-
-                }
-                  type="button"
-                  className="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:z-10 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:border-gray-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+         <div className="fixed inset-0 z-50 flex items-center justify-center" aria-hidden="true">
+         <div className="relative max-h-full w-full max-w-2xl" aria-modal="true" role="dialog">
+           <div className="relative rounded-lg bg-white shadow dark:bg-gray-700">
+             <div className="flex items-start justify-between rounded-t border-b p-5 dark:border-gray-600">
+               <h3 className="text-xl font-semibold text-gray-900 dark:text-white lg:text-2xl">
+                 Add ASIN here
+               </h3>
+               <button
+                 type="button"
+                 className="ms-auto inline-flex h-8 w-8 items-center justify-center rounded-lg bg-transparent text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900 dark:hover:bg-gray-600 dark:hover:text-white"
+                 onClick={handleCloseModal}
+               >
+                 <svg
+                   className="h-3 w-3"
+                   aria-hidden="true"
+                   xmlns="http://www.w3.org/2000/svg"
+                   fill="none"
+                   viewBox="0 0 14 14"
+                 >
+                   <path
+                     stroke="currentColor"
+                     strokeLinecap="round"
+                     strokeLinejoin="round"
+                     strokeWidth="2"
+                     d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
+                   />
+                 </svg>
+               </button>
+             </div>
+             <div className="space-y-6 p-6">
+               {asins.map((asin, index) => (
+                 <div key={index} className="flex items-center mb-2">
+                   <input
+                     type="text"
+                     value={asin}
+                     onChange={(e) => handleInputChangeNew(index, e.target.value)}
+                     className="w-full rounded-lg border border-gray-300 p-2.5 text-sm text-gray-900 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                     placeholder={`Enter ASIN ${index + 1}`}
+                   />
+                   {index === asins.length - 1 && ( // Only show the plus icon for the last input field
+                     <FaPlus
+                       className="ml-2 cursor-pointer"
+                       onClick={handleAddAsinField}
+                       style={{ color: 'red' }}
+                     />
+                   )}
+                 </div>
+               ))}
+               <p style={{ color: 'red', fontSize: 'small' }}>{ErrorMsg}</p>
+             </div>
+             <div className="flex items-center space-x-2 rtl:space-x-reverse rounded-b border-t border-gray-200 p-6 dark:border-gray-600">
+               <button
+                 onClick={handleSaveClick}
+                 type="button"
+                 className="rounded-lg bg-blue-700 px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+               >
+                 Save
+               </button>
+               <button
+                 onClick={() => {
+                   setIsOpen(false);
+                   setErrorMsg('');
+                 }}
+                 type="button"
+                 className="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:z-10 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:border-gray-500 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 dark:hover:text-white"
+               >
+                 Cancel
+               </button>
+             </div>
+           </div>
+         </div>
+       </div>
       )}
     </div>
 
@@ -288,9 +398,10 @@ Add ASIN here                </h3>
       <FaEye onClick={()=>{handleSaveClickGetById(data.asin)}} style={{ color: 'red' }} />
     </td>
               <td className="border border-gray-300 px-4 py-2">{data.price}</td>
-              <td className="border border-gray-300 px-4 py-2">{data.profit}</td>
+              <td onClick={() => listProductOnEbay(data)} className="border border-gray-300 px-4 py-2">{'List All'}</td>
               <td className="border border-gray-300 px-4 py-2">{data.age}</td>
-              <td className="border border-gray-300 px-4 py-2">{data.order}</td>
+              <td  className="border border-gray-300 px-4 py-2">{data.order}</td>
+              
               <td className="border border-gray-300 px-4 py-2">{data.status}</td>
             </tr>
 ))}
@@ -306,7 +417,7 @@ Add ASIN here                </h3>
 
 
 </>
-  );
-};
+ )
+}
 
-export default Modal;
+export default listingproducts
