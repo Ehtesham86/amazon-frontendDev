@@ -70,7 +70,7 @@ const listingproducts = () => {
         preparedData,
         {
           headers: {
-            Authorization: `Bearer ${your_access_token}`, // You'll need to obtain a valid access token
+            Authorization: `Bearer ${'your_access_token'}`, // You'll need to obtain a valid access token
             'Content-Type': 'application/json',
           },
         }
