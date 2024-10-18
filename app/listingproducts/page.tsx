@@ -219,9 +219,14 @@ const listingproducts = () => {
       setRefresh(!refresh); // Trigger refresh
       setErrorMsg(''); // Clear any errors
     } catch (error) {
-      setErrorMsg(error.message); // Show error message
+      if (error instanceof Error) {
+        setErrorMsg(error.message); // Show error message
+      } else {
+        setErrorMsg('An unknown error occurred.'); // Handle unknown errors
+      }
       console.error('Error:', error);
     }
+    
   };
 
   // const handleSaveClick = async () => {
