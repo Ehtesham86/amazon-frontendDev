@@ -5,6 +5,9 @@ import React, { useEffect, useState } from 'react';
 import { FaPlus,FaEyeSlash } from 'react-icons/fa';
 import { CiCircleMinus } from "react-icons/ci";
 import { FaEye } from "react-icons/fa6";
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
 interface Product {
   id: number; // or string
   asin: string;
@@ -16,6 +19,7 @@ interface Product {
   status: string;
 }
 const listingproducts = () => {
+  const MySwal = withReactContent(Swal);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setloading] = useState(false);
@@ -26,6 +30,7 @@ const listingproducts = () => {
   const [ErrorMsg, setErrorMsg] = useState ('');
   const [getByIdData, setGetByIdData] = useState ('');
   const [asins, setAsins] = useState<string[]>(['']); // Initialize with one empty asin field
+  console.log(asins,'___valueasins')
 
   const [asin, setasin] = useState('');
   const handleAddAsinField = () => {
@@ -38,6 +43,7 @@ const listingproducts = () => {
     }
   };
   const handleInputChangeNew = (index: number, value: string): void => {
+    console.log(value,'___value')
     const newAsins = [...asins];
     newAsins[index] = value;
     setAsins(newAsins);
@@ -127,7 +133,7 @@ const listingproducts = () => {
     };
 
     fetchProducts();
-  }, []);
+  }, [refresh]);
   const handleSaveClickgetByIds = async (asin: string) => {
     try {
       const response = await fetch('https://amazon-api-five.vercel.app/api/get-product', {
@@ -174,34 +180,50 @@ const listingproducts = () => {
       console.error('Error obtaining access token:', error);
     }
   };
+  // Save button click handler
   const handleSaveClick = async () => {
     try {
-      for (let asin of asins) {
-        if (asin.trim() === '') continue; // Skip empty asin fields
+      for (let asinInput of asins) {
+        if (asinInput.trim() === '') continue; // Skip empty fields
 
-        const response = await fetch('http://localhost:8000/api/scrape-products', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ asin }),
-        });
+        // Split the input by commas to handle multiple ASINs
+        const asinList = asinInput.split(',').map(asin => asin.trim()).filter(asin => asin !== '');
 
-        if (!response.ok) {
-          throw new Error(`Failed to scrape product with ASIN: ${asin}`);
+        for (let asin of asinList) {
+          const response = await fetch('http://localhost:8000/api/scrape-products', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ asin }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`Failed to scrape product with ASIN: ${asin}`);
+          }
+
+          const data = await response.json();
+          setAsins([])
+          setIsOpen(false);
+          setErrorMsg('')
+          MySwal.fire({
+            title: 'Scraped product!',
+            text: 'Your product has been Scraped.',
+            icon: 'success',
+            timer: 1000,
+          });
+          console.log('Scraped product data:', data);
         }
-
-        const data = await response.json();
-        console.log('Scraped product data:', data);
       }
 
-      setRefresh(!refresh);
-      setErrorMsg('');
+      setRefresh(!refresh); // Trigger refresh
+      setErrorMsg(''); // Clear any errors
     } catch (error) {
-      setErrorMsg(error.message);
+      setErrorMsg(error.message); // Show error message
       console.error('Error:', error);
     }
   };
+
   // const handleSaveClick = async () => {
   //   try {
   //     const response = await fetch('http://localhost:8000/api/scrape-products', {
